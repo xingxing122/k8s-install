@@ -1,0 +1,65 @@
+apiVersion: kubeadm.k8s.io/v1beta4
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: abcdef.0123456789abcdef
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: 10.37.129.3
+  bindPort: 6443
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
+  imagePullSerial: true
+  name: devops  # 节点名称
+  taints: [ ]
+timeouts:
+  controlPlaneComponentHealthCheck: 4m0s
+  discovery: 5m0s
+  etcdAPICall: 2m0s
+  kubeletHealthCheck: 4m0s
+  kubernetesAPICall: 1m0s
+  tlsBootstrap: 5m0s
+  upgradeManifests: 5m0s
+---
+apiServer: {}
+apiVersion: kubeadm.k8s.io/v1beta4
+caCertificateValidityPeriod: 876000h0m0s
+certificateValidityPeriod: 876000h0m0s
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+# 所有节点和管理机都应将此域名解析到负载均衡 VIP。
+controlPlaneEndpoint: api.k8s.io:8443  
+controllerManager: {}
+dns: {}
+encryptionAlgorithm: RSA-2048
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+imageRepository: registry.aliyuncs.com/google_containers
+kind: ClusterConfiguration
+kubernetesVersion: 1.36.0
+networking:
+  dnsDomain: cluster.local
+  podSubnet: 10.244.0.0/16  
+  serviceSubnet: 10.96.0.0/12
+proxy: {}
+scheduler: {}
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+cgroupDriver: systemd
+
+---
+###指定kube-proxy 默认代理模式，默认是iptables 
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: nftables
+
+
+
+
